@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer
 from lib.db.db_util import Base
 
 
@@ -7,8 +7,8 @@ class Literature_DB(Base):
     __table_args__ = ()
     # literature number
     bid = Column(
-        String(length = 64),
-        unique = True, primary_key = True, nullable = False
+        Integer, primary_key=True, autoincrement=True,
+        nullable = False
     )
     # literature name
     tle = Column(

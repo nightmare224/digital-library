@@ -1,11 +1,13 @@
 
 from flask import Blueprint, jsonify, request
-
+from datetime import datetime
 from lib.db.db_manager import DBManager
 from models.api.reader import Reader
+from models.api.record import Record
 from models.db.reader import Reader_DB
+from models.db.record import Record_DB
 from lib.api.responses import Create, Update, Read, Delete
-from lib.api.exceptions import OtherBadRequest, OtherConflict
+from lib.api.exceptions import OtherBadRequest, OtherConflict, OtherNotFound
 
 reader_controller = Blueprint('reader_controller', __name__)
 
@@ -73,7 +75,6 @@ def create_reader():
                     id: Reader
     """    
 
-    reader = []
     request_data = request.get_json()
     try:
         readers = []
@@ -98,6 +99,98 @@ def create_reader():
     return jsonify(resp.payload), resp.status_code
 
 
+@reader_controller.route('/digitallibrary/server/api/reader/<rid>/record', methods=['GET'])
+def get_reader_record(rid):
+    """
+    Get the reader's record in server side digital library.
+    ---
+    tags:
+        - Reader APIs
+    produces: application/json
+    parameters:
+      - in: path
+        name: rid
+        schema:
+            type: string
+            example: 7PBC52BAB
+        required: true
+        description: reader number feature data
+    responses:
+        200:
+            description: ok
+            schema:
+                type: array
+                items:
+                    schema:
+                        id: Record
+    """
+    
+    records = []
+    with DBManager().session_ctx() as session:
+        records_db = session.query(Record_DB).filter_by(rid = rid).all()
+        for record_db in records_db:
+            record = Record(
+                tid=record_db.tid,
+                bid=record_db.bid,
+                rid=record_db.rid,
+                rtt=record_db.rtt,
+                sta=record_db.sta
+            )
+            records.append(record)
+
+    resp = Read(payload = records)
+    return jsonify(resp.payload), resp.status_code
+
+
+@reader_controller.route('/digitallibrary/server/api/reader/<rid>/record', methods=['POST'])
+def create_reader_record(rid):
+    """
+    Create the reader's record in server side digital library.
+    ---
+    tags:
+        - Reader APIs
+    produces: application/json
+    parameters:
+      - in: path
+        name: rid
+        schema:
+            type: string
+            example: 7PBC52BAB
+        required: true
+        description: reader number feature data
+      - in: body
+        name: RecordCreate
+        schema:
+            type: object
+            properties:
+                bid:
+                    type: string
+                    example: "0"
+                rtt:
+                    type: string
+                    example: www
+    responses:
+        201:
+            description: created                     
+    """
+
+    request_data = request.get_json()
+    try:
+        record = Record(**request_data, rid = rid, sta=datetime.now())
+    except TypeError as e:
+        raise OtherBadRequest('Invalid request data: %s'%e)
+    
+    with DBManager().session_ctx() as session:
+        record_db = Record_DB(
+            bid = record.bid,
+            rid = record.rid,
+            rtt = record.rtt,
+            sta = record.sta
+        )
+        session.add(record_db)
+
+    resp = Create()
+    return jsonify(resp.payload), resp.status_code
 
 def is_reader_exist(rid):
 
@@ -108,19 +201,3 @@ def is_reader_exist(rid):
 
     return existed
 
-
-# # @anime_controller.route('/animereminder/api/v1/anime/<anime_id>', methods=['PUT'])
-# # # @koidc.require_permission("Default Resource")
-# # def edit_anime():
-
-# #     users = []
-# #     with DBManager().session_ctx() as session:
-# #         users_db = session.query(User_DB).all()
-# #         for user_db in users_db:
-# #             user = User(
-# #                 user_id=user_db.user_id
-# #             )
-# #             users.append(user)
-
-# #     resp = Read(payload = users)
-# #     return jsonify(resp.payload), resp.status_code

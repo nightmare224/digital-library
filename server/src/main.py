@@ -13,7 +13,8 @@ import models.db.record
 
 ## controller
 from controllers.reader_controller import reader_controller
-# from controllers.anime_controller import anime_controller
+from controllers.literature_controller import literature_controller
+from controllers.record_controller import record_controller
 from controllers.error_controller import error_controller
 # from init import init_anime
 
@@ -58,7 +59,8 @@ Swagger(app)
 
 # register controller
 app.register_blueprint(reader_controller)
-# app.register_blueprint(anime_controller)
+app.register_blueprint(literature_controller)
+app.register_blueprint(record_controller)
 app.register_blueprint(error_controller)
 
 # keycloak

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Date, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from lib.db.db_util import Base
 from models.db.literature import Literature_DB
 
@@ -13,7 +13,7 @@ class Record_DB(Base):
     )
     # literature number
     bid = Column(
-        String(length = 64),
+        Integer,
         ForeignKey("literatures.bid", ondelete="CASCADE"),
         nullable = False
     )
@@ -29,6 +29,6 @@ class Record_DB(Base):
     )
     # lending time (leanding ocurrence time)
     sta = Column(
-        Date,
+        DateTime,
         nullable = False
     )
