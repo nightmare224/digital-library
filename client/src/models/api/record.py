@@ -9,7 +9,7 @@ from datetime import datetime
 class Record():
     bid: Union[str, int]
     rid: str
-    rtt: str
+    rtt: Optional[str] = None
     sta: Optional[Union[datetime, str]] = None
     tid: Optional[Union[str, int]] = None
     def __post_init__(self):

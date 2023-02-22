@@ -176,7 +176,10 @@ def create_reader_record(rid):
 
     request_data = request.get_json()
     try:
-        record = Record(**request_data, rid = rid, sta=datetime.now())
+        request_data["rid"] = rid
+        if "sta" not in request_data:
+            request_data["sta"] = datetime.now()
+        record = Record(**request_data)
     except TypeError as e:
         raise OtherBadRequest('Invalid request data: %s'%e)
     
@@ -185,7 +188,7 @@ def create_reader_record(rid):
             bid = record.bid,
             rid = record.rid,
             rtt = record.rtt,
-            sta = record.sta
+            sta = datetime.strptime(record.sta, "%Y%m%d%H%M")
         )
         session.add(record_db)
 
