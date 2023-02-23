@@ -35,16 +35,58 @@ def get_reader_record(rid):
             example: 2019IN013
         required: true
         description: reader number feature data
+      - in: query
+        name: bid
+        schema:
+            type: string
+            example: 12
+        description: literature number
+      - in: query
+        name: sta_from
+        schema:
+            type: string
+            example: 201705081205
+        description: leanding ocurrence time
+      - in: query
+        name: sta_to
+        schema:
+            type: string
+            example: 201705081205
+        description: leanding ocurrence time
     responses:
         200:
             description: ok
             schema:
                 type: array
                 items:
+            schema:
+                type: array
+                items:
                     schema:
                         id: Record
+                        type: object
+                        properties:
+                            tid:
+                                type: string
+                                example: "1"
+                            bid:
+                                type: string
+                                example: "12"
+                            rid:
+                                type: string
+                                example: 7PBC52BAB
+                            rtt:
+                                type: string
+                                example: w
+                            sta:
+                                type: string
+                                example: 201705081205
     """
     
+    # get param
+    request_data = request.args
+    param = request_data.to_dict()
+
     # trainsform the original query
     rid = feature_construction(rid)
 
@@ -54,7 +96,7 @@ def get_reader_record(rid):
         current_app.config["DLSERVER"]["port"],
         rid
     )
-    response_data = requests.get(url)
+    response_data = requests.get(url, params = param)
     records = []
     try:
         for record in response_data.json():
@@ -127,13 +169,3 @@ def create_reader_record(rid):
 
     resp = Create()
     return jsonify(resp.payload), resp.status_code
-
-
-def is_reader_exist(rid):
-
-    existed = False
-    with DBManager().session_ctx() as session:
-        reader_db = session.query(Reader_DB).filter_by(rid=rid).one()
-        existed = reader_db is not None
-
-    return existed

@@ -4,18 +4,35 @@ import re
 def feature_construction(rid):
     feature_data = None
 
-    # Step1 Domain Division
+    # field 1
+    result = re.match('^(\d\d\d\d)', rid)
+    if result is None:
+        return feature_data
+    try:
+        year = result.group(1)
+        feature_data = _integer_identifier(year) + _a1(year)
+    except:
+        return feature_data
+    
+    # field 2
+    result = re.match('^(\d\d\d\d)(\S\S)', rid)
+    if result is None:
+        return feature_data
+    try:
+        dept = result.group(2)
+        feature_data = feature_data + _a2(dept)
+    except:
+        return feature_data
+    
+    # field 3
     result = re.match('^(\d\d\d\d)(\S\S)(\d\d\d)$', rid)
     if result is None:
-        return None
-    year = result.group(1)
-    dept = result.group(2)
-    num = result.group(3)
-    # Step2 Fileld Division 
+        return feature_data
     try:
-        feature_data = _integer_identifier(year) + _a1(year) + _a2(dept) + _a3(num[0]) + _a4(num[1]) + _a5(num[2])
+        num = result.group(3)
+        feature_data = feature_data + _a3(num[0]) + _a4(num[1]) + _a5(num[2])
     except:
-        return None
+        return feature_data
 
 
     return feature_data

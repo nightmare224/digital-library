@@ -7,10 +7,8 @@ from flasgger import Swagger
 from controllers.reader_controller import reader_controller
 from controllers.record_controller import record_controller
 from controllers.error_controller import error_controller
-# from init import init_anime
 
 ## AES
-from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 
 ##### Setting #####
@@ -57,9 +55,6 @@ app.register_blueprint(reader_controller)
 app.register_blueprint(record_controller)
 app.register_blueprint(error_controller)
 
-# keycloak
-# koidc = KeycloakOIDCBackendFlask(f"./lib/keycloak/secrets/anime-reminder-secrets.json")
-# init_anime()
 
 if __name__ == '__main__':
     app.run(

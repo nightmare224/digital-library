@@ -1,9 +1,10 @@
 
-from flask import Blueprint, jsonify, request
-
+import requests
+from flask import Blueprint, jsonify, request, current_app
 from models.api.record import Record
 from lib.api.responses import Create, Update, Read, Delete
 from lib.api.exceptions import OtherBadRequest, OtherConflict
+from lib.feature_generation import feature_construction
 
 record_controller = Blueprint('record_controller', __name__)
 
@@ -15,6 +16,31 @@ def get_record():
     tags:
         - Record APIs
     produces: application/json
+    parameters:
+      - in: query
+        name: rid_ptn
+        schema:
+            type: string
+            example: 2019IN013
+        description: find read number with this pattern
+      - in: query
+        name: bid
+        schema:
+            type: string
+            example: 12
+        description: literature number
+      - in: query
+        name: sta_from
+        schema:
+            type: string
+            example: 201705081205
+        description: leanding ocurrence time
+      - in: query
+        name: sta_to
+        schema:
+            type: string
+            example: 201706111205
+        description: leanding ocurrence time
     responses:
         200:
             description: ok
@@ -42,20 +68,26 @@ def get_record():
                                 example: 201705081205
     """
 
-    
+    request_data = request.args
+    param = request_data.to_dict()    
 
+    if "rid_ptn" in param:
+        param["rid_ptn"] = feature_construction(param["rid_ptn"])
+
+    # issue the new query
+    url = "http://{}:{}/digitallibrary/server/api/record".format(
+        current_app.config["DLSERVER"]["host"],
+        current_app.config["DLSERVER"]["port"]
+    )
+    response_data = requests.get(url, params = param)
     records = []
-    with DBManager().session_ctx() as session:
-        records_db = session.query(Record_DB).all()
-        for record_db in records_db:
-            record = Record(
-                tid=record_db.tid,
-                bid=record_db.bid,
-                rid=record_db.rid,
-                rtt=record_db.rtt,
-                sta=record_db.sta
-            )
+    try:
+        for record in response_data.json():
+            record = Record(**record)
             records.append(record)
+    except TypeError as e:
+        raise OtherBadRequest("Invalid response data: %s" % e)
 
-    resp = Read(payload = records)
+
+    resp = Read(payload=records)
     return jsonify(resp.payload), resp.status_code
