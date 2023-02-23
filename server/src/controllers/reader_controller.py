@@ -1,6 +1,7 @@
 
 from flask import Blueprint, jsonify, request
 from datetime import datetime
+from sqlalchemy import and_
 from lib.db.db_manager import DBManager
 from models.api.reader import Reader
 from models.api.record import Record
@@ -115,6 +116,24 @@ def get_reader_record(rid):
             example: 7PBC52BAB
         required: true
         description: reader number feature data
+      - in: query
+        name: bid
+        schema:
+            type: string
+            example: 12
+        description: literature number
+      - in: query
+        name: sta_from
+        schema:
+            type: string
+            example: 201705081205
+        description: leanding ocurrence time
+      - in: query
+        name: sta_to
+        schema:
+            type: string
+            example: 201705081205
+        description: leanding ocurrence time
     responses:
         200:
             description: ok
@@ -125,9 +144,23 @@ def get_reader_record(rid):
                         id: Record
     """
     
+    request_data = request.args
+    param = request_data.to_dict()
+
+    # query param
+    stat = Record_DB.rid == rid
+    if "sta_from" in param:
+        stat = and_(stat, Record_DB.sta >= datetime.strptime(param["sta_from"], "%Y%m%d%H%M"))
+    if "sta_to" in param:
+        stat = and_(stat, Record_DB.sta <= datetime.strptime(param["sta_to"], "%Y%m%d%H%M"))
+    if "bid" in param:
+        stat = and_(stat, Record_DB.bid == param["bid"])
+
+
+
     records = []
     with DBManager().session_ctx() as session:
-        records_db = session.query(Record_DB).filter_by(rid = rid).all()
+        records_db = session.query(Record_DB).filter(stat).all()
         for record_db in records_db:
             record = Record(
                 tid=record_db.tid,
