@@ -1,5 +1,4 @@
 import requests
-import json
 from flask import Blueprint, jsonify, request, current_app
 from datetime import datetime
 from dataclasses import asdict
@@ -22,7 +21,7 @@ reader_controller = Blueprint("reader_controller", __name__)
 )
 def get_reader_record(rid):
     """
-    Get the reader's record in client side digital library.
+    Get the reader's record in client side digital library. (admin, worker, reader)
     ---
     tags:
         - Reader APIs
@@ -88,7 +87,7 @@ def get_reader_record(rid):
     param = request_data.to_dict()
 
 
-    # issue the new query
+    # issue the new query to server side digital library
     url = "http://{}:{}/digitallibrary/server/api/reader/{}/record".format(
         current_app.config["DLSERVER"]["host"],
         current_app.config["DLSERVER"]["port"],
@@ -117,7 +116,7 @@ def get_reader_record(rid):
 )
 def create_reader_record(rid):
     """
-    Create the reader's record in server side digital library.
+    Create the reader's record in server side digital library. (admin, worker, reader)
     ---
     tags:
         - Reader APIs

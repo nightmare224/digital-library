@@ -12,7 +12,7 @@ literature_controller = Blueprint('literature_controller', __name__)
 @literature_controller.route('/digitallibrary/server/api/literature', methods=['GET'])
 def get_literature():
     """
-    Get all literatures in server side digital library.
+    Get all literatures in server side digital library. (admin)
     ---
     tags:
         - Literature APIs
@@ -55,7 +55,7 @@ def get_literature():
 @literature_controller.route('/digitallibrary/server/api/literature', methods=['POST'])
 def create_literature():
     """
-    Create a literature in server side digital library.
+    Create a literature in server side digital library. (admin)
     ---
     tags:
         - Literature APIs

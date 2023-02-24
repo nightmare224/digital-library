@@ -15,7 +15,7 @@ reader_controller = Blueprint('reader_controller', __name__)
 @reader_controller.route('/digitallibrary/server/api/reader', methods=['GET'])
 def get_reader():
     """
-    Get all readers in server side digital library.
+    Get all readers in server side digital library. (admin)
     ---
     tags:
         - Reader APIs
@@ -58,7 +58,7 @@ def get_reader():
 @reader_controller.route('/digitallibrary/server/api/reader', methods=['POST'])
 def create_reader():
     """
-    Create a reader in server side digital library.
+    Create a reader in server side digital library. (admin)
     ---
     tags:
         - Reader APIs
@@ -103,7 +103,7 @@ def create_reader():
 @reader_controller.route('/digitallibrary/server/api/reader/<rid>/record', methods=['GET'])
 def get_reader_record(rid):
     """
-    Get the reader's record in server side digital library.
+    Get the reader's record in server side digital library. (admin)
     ---
     tags:
         - Reader APIs
@@ -178,7 +178,7 @@ def get_reader_record(rid):
 @reader_controller.route('/digitallibrary/server/api/reader/<rid>/record', methods=['POST'])
 def create_reader_record(rid):
     """
-    Create the reader's record in server side digital library.
+    Create the reader's record in server side digital library. (admin)
     ---
     tags:
         - Reader APIs

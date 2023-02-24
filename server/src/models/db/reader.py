@@ -15,7 +15,7 @@ class Reader_DB(Base):
         String(length = 64), 
         nullable = False
     )
-    # reader type
+    # reader type (reader, worker, admin)
     type = Column(
         String(length = 64), 
         nullable = False

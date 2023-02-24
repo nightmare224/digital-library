@@ -13,7 +13,7 @@ record_controller = Blueprint('record_controller', __name__)
 @record_controller.route('/digitallibrary/server/api/record', methods=['GET'])
 def get_record():
     """
-    Get all records in server side digital library.
+    Get all records in server side digital library. (admin)
     ---
     tags:
         - Record APIs

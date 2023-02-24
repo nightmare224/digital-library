@@ -1,12 +1,10 @@
-# from os import getenv
 from configparser import ConfigParser
 from urllib.parse import quote as urlquote
 from flask import Flask
 from flasgger import Swagger
 
-# from keycloakOIDC import KeycloakOIDCBackendFlask
-from lib.db.db_manager import DBManager
 ## DB
+from lib.db.db_manager import DBManager
 import models.db.reader
 import models.db.literature
 import models.db.record
@@ -16,7 +14,6 @@ from controllers.reader_controller import reader_controller
 from controllers.literature_controller import literature_controller
 from controllers.record_controller import record_controller
 from controllers.error_controller import error_controller
-# from init import init_anime
 
 
 ##### Setting #####
@@ -63,9 +60,6 @@ app.register_blueprint(literature_controller)
 app.register_blueprint(record_controller)
 app.register_blueprint(error_controller)
 
-# keycloak
-# koidc = KeycloakOIDCBackendFlask(f"./lib/keycloak/secrets/anime-reminder-secrets.json")
-# init_anime()
 
 if __name__ == '__main__':
     app.run(
