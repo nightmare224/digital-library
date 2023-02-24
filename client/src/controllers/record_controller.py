@@ -1,6 +1,9 @@
 
 import requests
+import re
 from flask import Blueprint, jsonify, request, current_app
+from Crypto.Cipher import AES
+from base64 import b64encode, b64decode
 from models.api.record import Record
 from lib.api.responses import Create, Update, Read, Delete
 from lib.api.exceptions import OtherBadRequest, OtherConflict
@@ -71,7 +74,9 @@ def get_record():
     request_data = request.args
     param = request_data.to_dict()    
 
+    rid_ptn = None
     if "rid_ptn" in param:
+        rid_ptn = param["rid_ptn"]
         param["rid_ptn"] = feature_construction(param["rid_ptn"])
 
     # issue the new query
@@ -84,7 +89,13 @@ def get_record():
     try:
         for record in response_data.json():
             record = Record(**record)
-            records.append(record)
+            cipher = AES.new(current_app.config["AES"]["key"], AES.MODE_EAX, nonce = current_app.config["AES"]["nonce"])
+            if rid_ptn:
+                rtt = cipher.decrypt(b64decode(record.rtt.encode('ascii'))).decode('utf-8')
+                if re.match(f'^{rid_ptn}\S*{record.sta}$', rtt):
+                    records.append(record)
+            else:
+                records.append(record)
     except TypeError as e:
         raise OtherBadRequest("Invalid response data: %s" % e)
 

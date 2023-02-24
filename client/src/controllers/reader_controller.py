@@ -87,21 +87,23 @@ def get_reader_record(rid):
     request_data = request.args
     param = request_data.to_dict()
 
-    # trainsform the original query
-    rid = feature_construction(rid)
 
     # issue the new query
     url = "http://{}:{}/digitallibrary/server/api/reader/{}/record".format(
         current_app.config["DLSERVER"]["host"],
         current_app.config["DLSERVER"]["port"],
-        rid
+        # trainsform the original query
+        feature_construction(rid)
     )
     response_data = requests.get(url, params = param)
     records = []
     try:
         for record in response_data.json():
             record = Record(**record)
-            records.append(record)
+            cipher = AES.new(current_app.config["AES"]["key"], AES.MODE_EAX, nonce = current_app.config["AES"]["nonce"])
+            rtt = cipher.decrypt(b64decode(record.rtt.encode('ascii'))).decode('utf-8')
+            if rtt == rid + record.sta:
+                records.append(record)
     except TypeError as e:
         raise OtherBadRequest("Invalid response data: %s" % e)
 

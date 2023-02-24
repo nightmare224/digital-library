@@ -43,11 +43,11 @@ app.config["DLSERVER"] = {
 }
 
 ## AES encrypted
-key = get_random_bytes(16)
-nonce = get_random_bytes(16)
+# key = get_random_bytes(16)
+# nonce = get_random_bytes(16)
 app.config["AES"] = {
-    "key": get_random_bytes(16),
-    "nonce": get_random_bytes(16)
+    "key": b'h\x11\x8f\xbcT\xcfz\x17\xe3\x8b\xb0)\x8c\xb4Wi',
+    "nonce": b'\xb5\x18\xf4\xfa~\xf8p\x00wY\x17{\xe8\xafrF'
 }
 
 # register controller

@@ -232,7 +232,7 @@ def is_reader_exist(rid):
 
     existed = False
     with DBManager().session_ctx() as session:
-        reader_db = session.query(Reader_DB).filter_by(rid = rid).one()
+        reader_db = session.query(Reader_DB).filter_by(rid = rid).first()
         existed = reader_db is not None 
 
     return existed
