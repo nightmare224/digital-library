@@ -1,4 +1,3 @@
-import re
 from dataclasses import dataclass, field
 from typing import List, Union, Optional
 from dataclass_type_validator import dataclass_type_validator
@@ -18,4 +17,4 @@ class Reader():
             raise OtherBadRequest(e.errors)
         
         if self.type not in ["reader", "worker", "admin"]:
-            raise OtherBadRequest("Invaild reader type. Must be reader, worker, or admin")
+            raise ValueError("Invaild reader type. Must be reader, worker, or admin")

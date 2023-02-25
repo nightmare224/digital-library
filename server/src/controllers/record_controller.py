@@ -20,11 +20,11 @@ def get_record():
     produces: application/json
     parameters:
       - in: query
-        name: rid_ptn
+        name: rid
         schema:
             type: string
             example: 7PBC52BAB
-        description: find read number with this pattern
+        description: reader number after feature construction
       - in: query
         name: bid
         schema:
@@ -74,8 +74,8 @@ def get_record():
     param = request_data.to_dict()
 
     # query param
-    rid_ptn = param["rid_ptn"] if "rid_ptn" in param else ""
-    stat = Record_DB.rid.like(f'%{rid_ptn}%')
+    rid = param["rid"] if "rid" in param else ""
+    stat = Record_DB.rid.like(f'%{rid}%')
     if "sta_from" in param:
         stat = and_(stat, Record_DB.sta >= datetime.strptime(param["sta_from"], "%Y%m%d%H%M"))
     if "sta_to" in param:

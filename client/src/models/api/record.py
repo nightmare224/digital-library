@@ -40,3 +40,18 @@ class Record():
                 self.sta= self.sta.strftime("%Y%m%d%H%M")
         except Exception as e:
             raise OtherBadRequest("Time format should be like: 197001312359")
+        
+        
+@dataclass
+class Record_verbose(Record):
+    tle: str = ""
+    type: str = "reader"
+
+    def __post_init__(self):
+        try:
+            dataclass_type_validator(self)
+        except Exception as e:
+            raise OtherBadRequest(e.errors)
+        
+        if self.type not in ["reader", "worker", "admin"]:
+            raise OtherBadRequest("Invaild reader type. Must be reader, worker, or admin")

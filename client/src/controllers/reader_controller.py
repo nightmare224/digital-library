@@ -4,8 +4,8 @@ from datetime import datetime
 from dataclasses import asdict
 from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
-# from models.api.reader import Reader
-from models.api.record import Record
+from models.api.reader import Reader
+from models.api.record import Record, Record_verbose
 
 from lib.api.responses import Create, Update, Read, Delete
 from lib.api.exceptions import OtherBadRequest, OtherConflict, OtherNotFound
@@ -33,7 +33,14 @@ def get_reader_record(rid):
             type: string
             example: 2019IN013
         required: true
-        description: reader number feature data
+        description: reader number
+      - in: query
+        name: verbose
+        schema:
+            type: string
+            example: "0"
+        required: true
+        description: set verbose to 1 show reader info
       - in: query
         name: bid
         schema:
@@ -86,6 +93,23 @@ def get_reader_record(rid):
     request_data = request.args
     param = request_data.to_dict()
 
+    # if verbose is True show also reader inforamtion
+    verbose = bool(int(param["verbose"]))
+
+    rid_to_reader = {}
+    if verbose:
+        url = "http://{}:{}/digitallibrary/server/api/reader".format(
+            current_app.config["DLSERVER"]["host"],
+            current_app.config["DLSERVER"]["port"]
+        )
+        response_data = requests.get(url, params = {"rid": rid})
+        try:
+            for reader in response_data.json():
+                reader = Reader(**reader)
+                rid_to_reader[reader.rid] = reader
+        except:
+            pass
+
 
     # issue the new query to server side digital library
     url = "http://{}:{}/digitallibrary/server/api/reader/{}/record".format(
@@ -98,7 +122,11 @@ def get_reader_record(rid):
     records = []
     try:
         for record in response_data.json():
-            record = Record(**record)
+            if verbose:
+                reader = rid_to_reader[rid]
+                record = Record_verbose(**record, tle = reader.tle, type = reader.type)
+            else:
+                record = Record(**record)
             cipher = AES.new(current_app.config["AES"]["key"], AES.MODE_EAX, nonce = current_app.config["AES"]["nonce"])
             rtt = cipher.decrypt(b64decode(record.rtt.encode('ascii'))).decode('utf-8')
             if rtt == rid + record.sta:
@@ -128,7 +156,7 @@ def create_reader_record(rid):
             type: string
             example: 2019IN013
         required: true
-        description: reader number feature data
+        description: reader number
       - in: body
         name: RecordCreate
         schema:

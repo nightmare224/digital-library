@@ -20,6 +20,13 @@ def get_reader():
     tags:
         - Reader APIs
     produces: application/json
+    parameters:
+      - in: query
+        name: rid
+        schema:
+            type: string
+            example: 2019IN013
+        description: reader number
     responses:
         200:
             description: ok
@@ -40,10 +47,16 @@ def get_reader():
                                 type: string
                                 example: basic
     """
-    
+
+    request_data = request.args
+    param = request_data.to_dict()
+
+    rid = param["rid"] if "rid" in param else ""
+    stat = Reader_DB.rid.like(f'%{rid}%')
+
     readers = []
     with DBManager().session_ctx() as session:
-        readers_db = session.query(Reader_DB).all()
+        readers_db = session.query(Reader_DB).filter(stat).all()
         for reader_db in readers_db:
             reader = Reader(
                 rid=reader_db.rid,
@@ -115,7 +128,7 @@ def get_reader_record(rid):
             type: string
             example: 7PBC52BAB
         required: true
-        description: reader number feature data
+        description: reader number after feature construction
       - in: query
         name: bid
         schema:
@@ -190,7 +203,7 @@ def create_reader_record(rid):
             type: string
             example: 7PBC52BAB
         required: true
-        description: reader number feature data
+        description: reader number after feature construction
       - in: body
         name: RecordCreate
         schema:

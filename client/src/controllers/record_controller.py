@@ -3,8 +3,10 @@ import requests
 import re
 from flask import Blueprint, jsonify, request, current_app
 from Crypto.Cipher import AES
+from dataclasses import asdict
 from base64 import b64encode, b64decode
-from models.api.record import Record
+from models.api.record import Record, Record_verbose
+from models.api.reader import Reader
 from lib.api.responses import Create, Update, Read, Delete
 from lib.api.exceptions import OtherBadRequest, OtherConflict
 from lib.feature_generation import feature_construction
@@ -21,11 +23,18 @@ def get_record():
     produces: application/json
     parameters:
       - in: query
-        name: rid_ptn
+        name: verbose
+        schema:
+            type: string
+            example: "0"
+        required: true
+        description: set verbose to 1 show reader info
+      - in: query
+        name: rid
         schema:
             type: string
             example: 2019IN013
-        description: find read number with this pattern
+        description: reader number
       - in: query
         name: bid
         schema:
@@ -74,10 +83,30 @@ def get_record():
     request_data = request.args
     param = request_data.to_dict()    
 
-    rid_ptn = None
-    if "rid_ptn" in param:
-        rid_ptn = param["rid_ptn"]
-        param["rid_ptn"] = feature_construction(param["rid_ptn"])
+    # if verbose is True show also reader inforamtion
+    verbose = bool(int(param["verbose"]))
+
+
+    # get original rid if in parameter
+    rid = param["rid"] if "rid" in param else ""
+
+    rid_to_reader = {}
+    if verbose:
+        url = "http://{}:{}/digitallibrary/server/api/reader".format(
+            current_app.config["DLSERVER"]["host"],
+            current_app.config["DLSERVER"]["port"]
+        )
+        response_data = requests.get(url, params = {"rid": rid})
+        try:
+            for reader in response_data.json():
+                reader = Reader(**reader)
+                rid_to_reader[reader.rid] = reader
+        except:
+            raise OtherBadRequest("Reader information miss")
+
+    # do feature construction if rid in parameter
+    if rid:
+        param["rid"] = feature_construction(param["rid"])
 
     # issue the new query
     url = "http://{}:{}/digitallibrary/server/api/record".format(
@@ -90,11 +119,13 @@ def get_record():
         for record in response_data.json():
             record = Record(**record)
             cipher = AES.new(current_app.config["AES"]["key"], AES.MODE_EAX, nonce = current_app.config["AES"]["nonce"])
-            if rid_ptn:
-                rtt = cipher.decrypt(b64decode(record.rtt.encode('ascii'))).decode('utf-8')
-                if re.match(f'^{rid_ptn}\S*{record.sta}$', rtt):
-                    records.append(record)
-            else:
+            rtt = cipher.decrypt(b64decode(record.rtt.encode('ascii'))).decode('utf-8')
+            result = re.match(f'^({rid}\S*){record.sta}$', rtt)
+            if result:
+                if verbose:
+                    rid_tmp = result.group(1)
+                    reader = rid_to_reader[rid_tmp]
+                    record = Record_verbose(**asdict(record), tle = reader.tle, type = reader.type)
                 records.append(record)
     except TypeError as e:
         raise OtherBadRequest("Invalid response data: %s" % e)
