@@ -211,10 +211,10 @@ def create_reader_record(rid):
             properties:
                 bid:
                     type: string
-                    example: "0"
+                    example: "1"
                 rtt:
                     type: string
-                    example: www
+                    example: NPTnTn/sj8R4zuGsBW22ezjgV5DD
     responses:
         201:
             description: created                     

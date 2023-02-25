@@ -29,7 +29,7 @@ def get_literature():
                         properties:
                             bid:
                                 type: string
-                                example: 0
+                                example: "1"
                             tle:
                                 type: string
                                 example: Ulysses

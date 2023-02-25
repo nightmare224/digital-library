@@ -8,7 +8,7 @@ There are four components in paper's system model (Figure 1) which is _**Databas
 In this implementation, I choose **PostgreSQL** as the _**Database**_, which store all the data including reader information, literature information, and lending records. _**Server**_ is a **Flask web application** which in charge of making queries in Database, and only Administrator could access Server's APIs. _**Client**_ is also a **Flask web application** which make HTTP requests to _Server_. It is an interface for unprivileged _User_ such as _Reader_ and _Worker_ to make queries through _Server_ in _Database_. Both _Server_ and _Client_ have Swagger pages for _User_ to intract with their APIs.
 
 ## Quick Started
-The follow steps would create three docker containers to represent ***Server***, ***Client***, and ***Database***.
+The following steps would create three docker containers to represent ***Server***, ***Client***, and ***Database***.
 ### Prerequisite
 1. **Install Docker engine and Docker compose**
     > The easiest way is to install [Docker Desktop](https://docs.docker.com/desktop/install/mac-install/), which includes Docker Compose along with Docker Engine and Docker CLI.
@@ -27,13 +27,13 @@ To install Digital Library, follow the below steps:
 
 ### Usage
 
-**Note**: To demostrate the scenario in paper easily, some demo data are inserted in database beforehand.
+To demostrate the scenario in paper easily, some demo data are inserted in database beforehand. You can play with those data through ***Server* and *Client* APIs**.
 
-- See and interact with **_Server_** APIs on **[https://127.0.0.1:5001/apidocs/](https://127.0.0.1:5001/apidocs/)**
+- See and interact with **_Server_ APIs** on **[http://127.0.0.1:5001/apidocs/](http://127.0.0.1:5001/apidocs/)**
 
   <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/swagger-server.png" alt="system-model"/>
 
-- See and interact wich ***Client*** APIs on **[https://127.0.0.1:5002/apidocs/](https://127.0.0.1:5002/apidocs/)**
+- See and interact wich ***Client* APIs** on **[http://127.0.0.1:5002/apidocs/](http://127.0.0.1:5002/apidocs/)**
 
   <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/swagger-client.png" alt="system-model"/>
 
@@ -41,3 +41,32 @@ To install Digital Library, follow the below steps:
 
 
 
+## Demostration
+
+This section would demostrate some scenario that mention in paper, and also explain how it works behind the scenes.
+
+### Scenario1
+
+<pre style="text-align: center;">Reader(ID: 2019IN013) lends the literature(ID: 1)</pre>
+
+#### How to do
+
+1. Send HTTP `POST` request to *Client* API `/digitallibrary/client/api/reader/{rid}/record` to create record with **original reader number** (rid) *2019IN013* and **literature number** (bid) *1*.
+
+   <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/scenario1-1.png" alt="scenario1-1"/>
+
+2. You can send HTTP `GET` request to `/digitallibrary/client/api/reader/{rid}/record`  to check if the record created successfully.
+
+#### How it works
+
+1. Reader send `POST` request to *Client* API `/digitallibrary/client/api/reader/{rid}/record` with **original reader number** (rid) *2019IN013* and **literature number** (bid) *1*.
+
+2. Inside the *Client*, it would do query transformation, which would generate ciphertext field (rtt) and transfer the original reader number(rid) based on the feature construction process shown in Figure3.
+
+   <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/feature-construction.png" alt="feature-construction"/>
+
+3. *Client* sends the `POST` request to *Server* API `/digitallibrary/client/api/reader/{rid}/record` with **reader number after feature construction** (rid)  *7PBC52BAB* and the **ciphertext field**
+
+   <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/scenario1-2.png" alt="scenario1-2"/>
+
+4. *Server* would insert this record into *Database*

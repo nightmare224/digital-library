@@ -83,7 +83,7 @@ def get_reader_record(rid):
                                 example: 7PBC52BAB
                             rtt:
                                 type: string
-                                example: w
+                                example: NPTnTn/sj8R4zuGsBW22ezjgV5DD
                             sta:
                                 type: string
                                 example: 201705081205
@@ -164,7 +164,7 @@ def create_reader_record(rid):
             properties:
                 bid:
                     type: string
-                    example: "0"
+                    example: "1"
     responses:
         201:
             description: created
