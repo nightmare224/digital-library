@@ -4,13 +4,9 @@ FROM ubuntu:20.04
 RUN apt update
 RUN apt install curl -y
 RUN apt install software-properties-common -y
-RUN apt-get install --reinstall ca-certificates
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt update
-RUN apt install python3-dev python3-pip python3-venv -y
-RUN apt install libpq-dev -y
-RUN apt install libpq-dev unzip -y
-RUN apt install jq -y
+RUN apt install python3-dev python3-pip -y
 
 ### Args define
 ARG WORKDIR_PATH
@@ -27,9 +23,6 @@ COPY ${SRCCODE_PATH} /${WORKDIR_PATH}/${SRCCODE_PATH}
 
 ## Install python packages
 RUN pip3 install -r ${SRCCODE_PATH}/requirements.txt
-
-## Install custom python packages
-# RUN cd /${WORKDIR_PATH}/${SRCCODE_PATH}/lib/keycloak/keycloakOIDC-0.0.1/; pip3 install .
 
 ### Service port number
 EXPOSE ${SERVICE_PORT}

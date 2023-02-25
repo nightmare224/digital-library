@@ -45,7 +45,7 @@ def get_reader():
                                 example: Nicole Tai
                             type:
                                 type: string
-                                example: basic
+                                example: reader
     """
 
     request_data = request.args

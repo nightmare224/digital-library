@@ -1,0 +1,4 @@
+#!/bin/sh
+
+export PGPASSWORD=${POSTGRES_PASSWORD}
+createdb ${POSTGRES_DB} -U ${POSTGRES_USER}
