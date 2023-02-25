@@ -39,34 +39,95 @@ To demostrate the scenario in paper easily, some demo data are inserted in datab
 
 
 
-
-
 ## Demostration
 
-This section would demostrate some scenario that mention in paper, and also explain how it works behind the scenes.
+This section would demostrate some scenario that mentioned in paper, and also explain how it works behind the scenes.
 
 ### Scenario1
 
 <pre style="text-align: center;">Reader(ID: 2019IN013) lends the literature(ID: 1)</pre>
 
-#### How to do
+Send HTTP `POST` request to *Client* API `/digitallibrary/client/api/reader/{rid}/record` to create record.
 
-1. Send HTTP `POST` request to *Client* API `/digitallibrary/client/api/reader/{rid}/record` to create record with **original reader number** (rid) *2019IN013* and **literature number** (bid) *1*.
-
-   <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/scenario1-1.png" alt="scenario1-1"/>
-
-2. You can send HTTP `GET` request to `/digitallibrary/client/api/reader/{rid}/record`  to check if the record created successfully.
+<img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/scenario1-1.png" alt="scenario1-1"/>
 
 #### How it works
 
 1. Reader send `POST` request to *Client* API `/digitallibrary/client/api/reader/{rid}/record` with **original reader number** (rid) *2019IN013* and **literature number** (bid) *1*.
 
-2. Inside the *Client*, it would do query transformation, which would generate ciphertext field (rtt) and transfer the original reader number(rid) based on the feature construction process shown in Figure3.
+2. Inside the *Client*, it would do query transformation, which would generate **ciphertext** (rtt) and **featured reader number**(rid) based on the feature construction process shown in Figure3. The ciphertext is completed by AES encryption and Base64 encode, i.e. `Base64Encode(AES(lending time + original reader number))`
 
    <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/feature-construction.png" alt="feature-construction"/>
 
-3. *Client* sends the `POST` request to *Server* API `/digitallibrary/client/api/reader/{rid}/record` with **reader number after feature construction** (rid)  *7PBC52BAB* and the **ciphertext field**
+3. *Client* sends the `POST` request to *Server* API `/digitallibrary/client/api/reader/{rid}/record` with **featured reader number ** (rid)  *7PBC52BAB* and the **ciphertext field** (rtt) *NPTnTn/sj8R4zuGsBW22ezjgV5DD*
 
    <img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/scenario1-2.png" alt="scenario1-2"/>
 
 4. *Server* would insert this record into *Database*
+
+### Scenario2
+
+<pre style="text-align: center;">Reader(ID: 2019IN013) get his own lending records</pre>
+
+Send HTTP `GET` request to *Client* API  `/digitallibrary/client/api/reader/{rid}/record`  to get records.
+
+<img src="https://github.com/nightmare224/digital-library/blob/master/docs/images/scenario2-1.png" alt="scenario2-1"/>
+
+#### How it works
+
+1. Send HTTP `GET` request to *Client* API  `/digitallibrary/client/api/reader/{rid}/record`  to get records with **original reader number** (rid) *2019IN013*.
+
+2. Inside the *Client*, it send HTTP `GET` request to *Server* API `/digitallibrary/server/api/reader/{rid}/record` with **featured reader number** (rid)  *7PBC52BAB*. The response of _Server_ would be like:
+
+   ```json
+   [
+     {
+       "bid": "1",
+       "rid": "7PBC52BAB",
+       "rtt": "NPTnTn/sj8R4zuGsBW22ezjgV5DD",
+       "sta": "202302251946",
+       "tid": "1"
+     },
+     {
+       "bid": "2",
+       "rid": "7PBC52BAB",
+       "rtt": "NPTnT3/sjsR4zuGsBW22ezjjXJDA",
+       "sta": "202302252245",
+       "tid": "2"
+     }
+   [
+   ```
+
+3. To verify whether the records belong to reader *2019IN013*, do Base64 decode and AES decrypt on ciphertext field (rtt) . This step is necessary because there is a **many-to-one** mapping from **original reader number** to featured reader number, for example, both *2019IN013* and *2018IN113* get *7PBC52BAB* after feature construction.
+
+4. *Client* gather all the records which belong to reader *2019IN013* and then send HTTP response. The response of *Client* would be like:
+
+   **verbose=1**
+
+   ```json
+   [
+     {
+       "bid": "1",
+       "rid": "7PBC52BAB",
+       "rtt": "NPTnTn/sj8R4zuGsBW22ezjgV5DD",
+       "sta": "202302251946",
+       "tid": "1",
+       "tle": "Nicole Tai",
+       "type": "reader"
+     }
+   ]
+   ```
+
+   **verbose=0**
+
+   ```json
+   [
+     {
+       "bid": "1",
+       "rid": "7PBC52BAB",
+       "rtt": "NPTnTn/sj8R4zuGsBW22ezjgV5DD",
+       "sta": "202302251946",
+       "tid": "1"
+     }
+   ]
+   ```
