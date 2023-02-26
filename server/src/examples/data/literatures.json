@@ -1,0 +1,26 @@
+[
+    {
+        "tle": "Harry Potter",
+        "type": "Fantasy"
+    },    
+    {
+        "tle": "Moby Dick",
+        "type": "Adventure"
+    },    
+    {
+        "tle": "The Notebook",
+        "type": "Romance"
+    },    
+    {
+        "tle": "The Hunger Games",
+        "type": "Dystopian"
+    },
+    {
+        "tle": "Young World",
+        "type": "Dystopian"
+    },
+    {
+        "tle": "Handmaid’s Tale",
+        "type": "Dystopian"
+    }
+]

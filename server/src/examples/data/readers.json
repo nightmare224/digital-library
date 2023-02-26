@@ -1,0 +1,17 @@
+[
+    {
+        "rid": "2000DL001",
+        "tle": "Adminstrator",
+        "type": "admin"
+    },
+    {
+      "rid": "2019IN013",
+      "tle": "Nicole Tai",
+      "type": "reader"
+    },
+    {
+        "rid": "2018IN113",
+        "tle": "Stanley Tai",
+        "type": "reader"
+    }
+]

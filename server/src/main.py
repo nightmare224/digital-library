@@ -15,6 +15,8 @@ from controllers.literature_controller import literature_controller
 from controllers.record_controller import record_controller
 from controllers.error_controller import error_controller
 
+## example data
+from examples.examples import create_example_data
 
 ##### Setting #####
 config_parser = ConfigParser()
@@ -59,6 +61,9 @@ app.register_blueprint(reader_controller)
 app.register_blueprint(literature_controller)
 app.register_blueprint(record_controller)
 app.register_blueprint(error_controller)
+
+# example data
+create_example_data()
 
 
 if __name__ == '__main__':

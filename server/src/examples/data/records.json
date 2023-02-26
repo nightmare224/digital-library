@@ -1,0 +1,15 @@
+[
+    {
+      "bid": "1",
+      "rid": "7PBC52BAB",
+      "rtt": "NPTnTn/sj8R4zuGsBW22ezvhX5fM",
+      "sta": "202302260139"
+    },
+    {
+        "bid": "2",
+        "rid": "7PBC52BAB",
+        "rtt": "NPTnT3/sjsR4zuGsBW22ezvhX5DH",
+        "sta": "202302260142",
+        "tid": "2"
+      }
+]
